@@ -1,3 +1,5 @@
+import 'package:chatacter/config/app_routes.dart';
+import 'package:chatacter/pages/chats_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:chatacter/components/bottom_navigation_item.dart';
@@ -47,12 +49,7 @@ class _MainPageState extends State<MainPage> {
         style: TextStyle(fontSize: 32),
       ),
     ),
-    Center(
-      child: Text(
-        "Chat",
-        style: TextStyle(fontSize: 32),
-      ),
-    ),
+    ChatsPage(),
     ProfilePage(),
   ];
 }

@@ -40,6 +40,5 @@ class PostItem extends StatelessWidget {
         ],
       ),
     );
-    ;
   }
 }

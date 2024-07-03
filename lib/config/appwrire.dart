@@ -1,5 +1,9 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
+import 'package:chatacter/main.dart';
+import 'package:chatacter/models/user_data.dart';
+import 'package:chatacter/providers/user_data_provider.dart';
+import 'package:provider/provider.dart';
 
 Client client = Client()
     .setEndpoint('https://cloud.appwrite.io/v1')
@@ -8,9 +12,11 @@ Client client = Client()
 
 const String databaseId = '66803ce100323250c22e';
 const String userCollectionId = '66803d2a002bb74a6bc7';
+const String imagesBucketId = '6683247c00056fdd9ceb';
 
 Account account = Account(client);
 final Databases databases = Databases(client);
+final Storage storage = Storage(client);
 
 //save a phone number (while creating a new account)
 Future<bool> savePhoneToDatabase(
@@ -89,18 +95,41 @@ Future<String> createPhoneNumberSession({required String phone}) async {
 }
 
 // Login with OTP
+
 Future<bool> loginWithOtp({required String otp, required String userId}) async {
   try {
-    final Session session =
-        await account.updatePhoneSession(userId: userId, secret: otp);
-    print(session..userId);
-    print(session.userId);
-    return true;
+    // Check if a session already exists
+    bool sessionExists = await checkSessions();
+    if (sessionExists) {
+      print('User already has an active session.');
+      return true; // Return true if an active session exists
+    } else {
+      // If no active session, proceed with OTP login
+      // Assuming `updatePhoneSession` is the method to use with OTP
+      final Session session =
+          await account.updatePhoneSession(userId: userId, secret: otp);
+      print(session..userId);
+      print(session.userId);
+      return true;
+    }
   } catch (e) {
     print('Error on login with otp: $e');
     return false;
   }
 }
+
+// Future<bool> loginWithOtp({required String otp, required String userId}) async {
+//   try {
+//     final Session session =
+//         await account.updatePhoneSession(userId: userId, secret: otp);
+//     print(session..userId);
+//     print(session.userId);
+//     return true;
+//   } catch (e) {
+//     print('Error on login with otp: $e');
+//     return false;
+//   }
+// }
 
 // Check if the session exist
 Future<bool> checkSessions() async {
@@ -117,4 +146,105 @@ Future<bool> checkSessions() async {
 // Logout and delete session
 Future logoutUser() async {
   await account.deleteSession(sessionId: 'current');
+}
+
+// Load user data
+Future<UserData?> getUserDetails({required String userId}) async {
+// Future<User?> getUserDetails({required String userId}) async {
+  try {
+    final response = await databases.getDocument(
+        databaseId: databaseId,
+        collectionId: userCollectionId,
+        documentId: userId);
+    print('Getting User Data...');
+    print(response.data);
+    // return User.toMap(response.data);
+    return UserData.toMap(response.data);
+  } catch (e) {
+    print('Error in getting user data: $e');
+    return null;
+  }
+}
+
+// To update user data
+Future<bool> updateUserDetails(String picture, String location,
+    {required String id,
+    required String name,
+    required String lastName,
+    required String birthday,
+    required String gender}) async {
+  try {
+    final data = await databases.updateDocument(
+        databaseId: databaseId,
+        collectionId: userCollectionId,
+        documentId: id,
+        data: {
+          'name': name,
+          'profile_picture': picture,
+          'location': location,
+          'last_name': lastName,
+          'birthday': birthday,
+          'gender': gender
+        });
+
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserName(name);
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserLastName(lastName);
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserProfilePicture(picture);
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserLocation(location);
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserBirthday(birthday);
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserGender(gender);
+
+    print(data);
+    return true;
+  } on AppwriteException catch (e) {
+    print('Can\'t save data to database: $e');
+    return false;
+  }
+}
+
+// Upload and save image to storage bucked
+Future<String?> saveImageToBucket({required InputFile image}) async {
+  try {
+    final response = await storage.createFile(
+        bucketId: imagesBucketId, fileId: ID.unique(), file: image);
+    print('Response after saving to bucked: $response');
+    return response.$id;
+  } catch (e) {
+    print('Error when saving an image to bucket: $e');
+    return null;
+  }
+}
+
+// updating an image in the bucket (deleting and creating a new one)
+Future<String?> updateImageOnBucket(
+    {required String oldImageId, required InputFile image}) async {
+  try {
+    //To delete the old image
+    deleteImageFromBucket(oldImage: oldImageId);
+
+    //To create a new image
+    final newImage = saveImageToBucket(image: image);
+
+    return newImage;
+  } catch (e) {
+    print('Cann\'t update / delete image: $e');
+    return null;
+  }
+}
+
+//To delete an image from the bucket
+Future<bool> deleteImageFromBucket({required String oldImage}) async {
+  try {
+    await storage.deleteFile(bucketId: imagesBucketId, fileId: oldImage);
+    return true;
+  } catch (e) {
+    print('Can\'t delete image: $e');
+    return false;
+  }
 }

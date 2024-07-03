@@ -1,5 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chatacter/components/message.dart';
+import 'package:chatacter/models/message.dart';
 import 'package:chatacter/functions/format_date.dart';
 import 'package:chatacter/styles/app_colors.dart';
 import 'package:flutter/material.dart';

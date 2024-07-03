@@ -12,5 +12,8 @@ class AppColors {
   static const background = Color(0xff1A2947);
   static const black = Color(0xff000000);
   static const white = Color(0xffffffff);
+  static const grey = Colors.grey;
   static const notSeen = Colors.grey;
+  static const defaultUserBackgroundColor = Colors.grey;
+  static const imageCaptureButton1 = Colors.white60;
 }

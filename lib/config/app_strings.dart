@@ -14,6 +14,8 @@ class AppStrings {
   static const home = "Home";
   static const favorites = "Favorites";
   static const add = "Add";
+  static const save = "Save";
+  static const addDetails = "Add Details";
   static const chat = "Chat";
   static const followers = "Followers";
   static const posts = "Posts";

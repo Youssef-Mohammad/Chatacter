@@ -1,4 +1,4 @@
-import 'package:chatacter/components/message.dart';
+import 'package:chatacter/models/message.dart';
 import 'package:chatacter/components/message_item.dart';
 import 'package:chatacter/config/app_icons.dart';
 import 'package:chatacter/config/app_strings.dart';
@@ -105,7 +105,8 @@ class _ChatPageState extends State<ChatPage> {
                     controller: messageController,
                     decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: AppStrings.typeMessage),
+                        hintText: AppStrings.typeMessage,
+                        hintStyle: TextStyle(color: AppColors.grey)),
                   ),
                 ),
                 IconButton(onPressed: () {}, icon: Icon(Icons.image)),

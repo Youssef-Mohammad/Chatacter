@@ -2,10 +2,12 @@ import 'package:chatacter/config/app_icons.dart';
 import 'package:chatacter/config/app_routes.dart';
 import 'package:chatacter/config/app_strings.dart';
 import 'package:chatacter/config/appwrire.dart';
+import 'package:chatacter/providers/user_data_provider.dart';
 import 'package:chatacter/styles/app_colors.dart';
 import 'package:chatacter/styles/app_text.dart';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class OtpPage extends StatefulWidget {
   const OtpPage({super.key});
@@ -27,8 +29,15 @@ class _OtpPageState extends State<OtpPage> {
     if (_formKey1.currentState!.validate()) {
       loginWithOtp(otp: _otpController.text, userId: userId).then((value) {
         if (value) {
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil(AppRoutes.main, (route) => false);
+          //Setting and saving data locally
+          Provider.of<UserDataProvider>(context, listen: false)
+              .setUserId(userId);
+          Provider.of<UserDataProvider>(context, listen: false)
+              .setUserPhone(countryCode + _phoneNumberController.text);
+
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              AppRoutes.editProfile, (route) => false,
+              arguments: {'title': 'add'});
           print("Right OTP..............");
         } else {
           ScaffoldMessenger.of(context)

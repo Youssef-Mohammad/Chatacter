@@ -3,11 +3,23 @@ import 'package:chatacter/styles/app_colors.dart';
 
 class AppTextfield extends StatelessWidget {
   final String hint;
-  const AppTextfield({super.key, required this.hint});
+  final TextEditingController? controller; // Make controller nullable
+  final bool enabled;
+  final String? Function(String?)? validator; // Add validator parameter
+
+  const AppTextfield({
+    super.key,
+    required this.hint,
+    this.controller, // Remove 'required' keyword
+    this.enabled = true,
+    this.validator = null, // Make default value null
+  });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
+      enabled: enabled,
+      controller: controller,
       cursorColor: AppColors.fieldCursorColor,
       decoration: InputDecoration(
         hintText: hint,
@@ -22,6 +34,7 @@ class AppTextfield extends StatelessWidget {
         filled: true,
         fillColor: AppColors.fieldColor,
       ),
+      validator: validator, // Use the validator
     );
   }
 }

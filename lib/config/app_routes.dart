@@ -8,6 +8,7 @@ import 'package:chatacter/pages/login_page.dart';
 import 'package:chatacter/pages/main_page.dart';
 import 'package:chatacter/pages/nearby_page.dart';
 import 'package:chatacter/pages/otp_page.dart';
+import 'package:chatacter/pages/video_page.dart';
 
 class AppRoutes {
   static const checkUserSession = "/";
@@ -20,6 +21,7 @@ class AppRoutes {
   static const chat = "/chat";
   static const chats = "/chats";
   static const friends = "/friends";
+  static const video = "/video";
 
   static final pages = {
     checkUserSession: (context) => CheckUserSessions(),
@@ -32,5 +34,6 @@ class AppRoutes {
     chat: (context) => ChatPage(),
     chats: (context) => ChatsPage(),
     friends: (context) => FriendsPage(),
+    video: (context) => VideoPage(),
   };
 }

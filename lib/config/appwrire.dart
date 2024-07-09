@@ -1,7 +1,10 @@
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart';
 import 'package:chatacter/main.dart';
+import 'package:chatacter/models/chat.dart';
+import 'package:chatacter/models/message.dart';
 import 'package:chatacter/models/user_data.dart';
+import 'package:chatacter/providers/chat_provider.dart';
 import 'package:chatacter/providers/user_data_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -12,11 +15,47 @@ Client client = Client()
 
 const String databaseId = '66803ce100323250c22e';
 const String userCollectionId = '66803d2a002bb74a6bc7';
+const String chatCollectionId = '6685c80c000ab935ee25';
 const String imagesBucketId = '6683247c00056fdd9ceb';
 
 Account account = Account(client);
 final Databases databases = Databases(client);
 final Storage storage = Storage(client);
+final Realtime realtime = Realtime(client);
+
+RealtimeSubscription? subscription;
+
+//Subscribe to realtime changes
+subscribeToRealtime({required String userId}) {
+  subscription = realtime.subscribe([
+    'databases.$databaseId.collections.$chatCollectionId.documents',
+    'databases.$databaseId.collections.$userCollectionId.documents'
+  ]);
+
+  print('Subscribing to realtime');
+
+  subscription!.stream.listen((data) {
+    print("Some event happened");
+
+    final firstItem = data.events[0].split('.');
+    final eventType = firstItem[firstItem.length - 1];
+
+    print('EventType is $eventType');
+
+    // Use a method to handle the event that checks for mounted state
+    _handleRealtimeEvent(eventType, userId);
+  });
+}
+
+void _handleRealtimeEvent(String eventType, String userId) {
+  final context = navigatorKey.currentState?.context;
+  if (context != null) {
+    // Now it's safer to use the context
+    if (['create', 'update', 'delete'].contains(eventType)) {
+      Provider.of<ChatProvider>(context, listen: false).loadChats(userId);
+    }
+  }
+}
 
 //save a phone number (while creating a new account)
 Future<bool> savePhoneToDatabase(
@@ -84,6 +123,7 @@ Future<String> createPhoneNumberSession({required String phone}) async {
     // if user exists in the database
     else {
       // create phone token for existing user
+      print('Sending OTP Pin to $phone');
       final Token data =
           await account.createPhoneToken(userId: userId, phone: phone);
       return data.userId;
@@ -94,42 +134,18 @@ Future<String> createPhoneNumberSession({required String phone}) async {
   }
 }
 
-// Login with OTP
-
+// login with otp
 Future<bool> loginWithOtp({required String otp, required String userId}) async {
   try {
-    // Check if a session already exists
-    bool sessionExists = await checkSessions();
-    if (sessionExists) {
-      print('User already has an active session.');
-      return true; // Return true if an active session exists
-    } else {
-      // If no active session, proceed with OTP login
-      // Assuming `updatePhoneSession` is the method to use with OTP
-      final Session session =
-          await account.updatePhoneSession(userId: userId, secret: otp);
-      print(session..userId);
-      print(session.userId);
-      return true;
-    }
+    final Session session =
+        await account.updatePhoneSession(userId: userId, secret: otp);
+    print(session.userId);
+    return true;
   } catch (e) {
-    print('Error on login with otp: $e');
+    print("error on login with otp :$e");
     return false;
   }
 }
-
-// Future<bool> loginWithOtp({required String otp, required String userId}) async {
-//   try {
-//     final Session session =
-//         await account.updatePhoneSession(userId: userId, secret: otp);
-//     print(session..userId);
-//     print(session.userId);
-//     return true;
-//   } catch (e) {
-//     print('Error on login with otp: $e');
-//     return false;
-//   }
-// }
 
 // Check if the session exist
 Future<bool> checkSessions() async {
@@ -138,7 +154,13 @@ Future<bool> checkSessions() async {
     print('Session exists: ${session.$id}');
     return true;
   } catch (e) {
-    print('Session is not exists: $e');
+    // Specifically handle unauthorized access
+    if (e is AppwriteException && e.code == 401) {
+      print('Unauthorized access, missing required scope: $e');
+      // Consider re-authenticating the user or requesting the necessary scope
+    } else {
+      print('Error checking session: $e');
+    }
     return false;
   }
 }
@@ -150,7 +172,6 @@ Future logoutUser() async {
 
 // Load user data
 Future<UserData?> getUserDetails({required String userId}) async {
-// Future<User?> getUserDetails({required String userId}) async {
   try {
     final response = await databases.getDocument(
         databaseId: databaseId,
@@ -158,7 +179,16 @@ Future<UserData?> getUserDetails({required String userId}) async {
         documentId: userId);
     print('Getting User Data...');
     print(response.data);
-    // return User.toMap(response.data);
+
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserName(response.data['name'] ?? '');
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserLastName(response.data['last_name'] ?? '');
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserLocation(response.data['location'] ?? '');
+    Provider.of<UserDataProvider>(navigatorKey.currentContext!, listen: false)
+        .setUserProfilePicture(response.data['profile_picture'] ?? '');
+
     return UserData.toMap(response.data);
   } catch (e) {
     print('Error in getting user data: $e');
@@ -246,5 +276,164 @@ Future<bool> deleteImageFromBucket({required String oldImage}) async {
   } catch (e) {
     print('Can\'t delete image: $e');
     return false;
+  }
+}
+
+//To search about doduments in the database
+Future<DocumentList?> searchUsers(
+    {required String searchItem, required String userId}) async {
+  try {
+    final DocumentList users = await databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: userCollectionId,
+        queries: [
+          Query.search('phone_number', searchItem),
+          Query.notEqual('id', userId),
+        ]);
+    print('Matched Users: ${users.total}');
+    return users;
+  } catch (e) {
+    print('Error on searching users: $e');
+    return null;
+  }
+}
+
+//Create a new chat and save it to database
+Future createNewChat(
+    {required String message,
+    required String senderId,
+    required String receiverId,
+    required bool isImage}) async {
+  try {
+    print('Here SenderId = $senderId, receiverId = $receiverId');
+    final msg = await databases.createDocument(
+      databaseId: databaseId,
+      collectionId: chatCollectionId,
+      documentId: ID.unique(),
+      data: {
+        'message': message,
+        'sender_id': senderId,
+        'receiver_id': receiverId,
+        'timestamp': DateTime.now().toIso8601String(),
+        'is_seen_by_receiver': false,
+        'is_image': isImage,
+        'user': [senderId, receiverId],
+      },
+    );
+    print('Message Sent!');
+    return true;
+  } catch (e) {
+    print('Failed to send message: $e');
+    return false;
+  }
+}
+
+//To list all chats of a current user
+Future<Map<String, List<Chat>>?> currentUserChats(String userId) async {
+  try {
+    var results = await databases.listDocuments(
+        databaseId: databaseId,
+        collectionId: chatCollectionId,
+        queries: [
+          Query.or([
+            Query.equal('sender_id', userId),
+            Query.equal('receiver_id', userId)
+          ]),
+          Query.orderDesc('timestamp'),
+          Query.limit(2000),
+        ]);
+
+    final DocumentList chatDocuments = results;
+
+    print(
+        'Chat Documnents: ${chatDocuments.total}, documents: ${chatDocuments.documents.length}');
+
+    Map<String, List<Chat>> chats = {};
+
+    if (chatDocuments.documents.isNotEmpty) {
+      for (var i = 0; i < chatDocuments.documents.length; i++) {
+        var document = chatDocuments.documents[i];
+        String sender = document.data['sender_id'];
+        String receiver = document.data['receiver_id'];
+
+        Message message = Message.fromMap(document.data);
+
+        List<UserData> users = [];
+
+        for (var user in document.data['user']) {
+          users.add(UserData.toMap(user));
+        }
+        String key = (sender == userId) ? receiver : sender;
+
+        if (chats[key] == null) {
+          chats[key] = [];
+        }
+        chats[key]!.add(Chat(message: message, users: users));
+      }
+    }
+    return chats;
+  } catch (e) {
+    print('Error on reading user chats: $e');
+    return null;
+  }
+}
+
+// edit our chat message and update to database
+Future editChat({
+  required String chatId,
+  required String message,
+}) async {
+  try {
+    await databases.updateDocument(
+        databaseId: databaseId,
+        collectionId: chatCollectionId,
+        documentId: chatId,
+        data: {"message": message});
+    print("message updated");
+  } catch (e) {
+    print("error on editing message :$e");
+  }
+}
+
+//to delete a message from the database
+Future deleteCurrentUserChat({required String chatId}) async {
+  try {
+    await databases.deleteDocument(
+        databaseId: databaseId,
+        collectionId: chatCollectionId,
+        documentId: chatId);
+  } catch (e) {
+    print('Error on deleting a message: $e');
+  }
+}
+
+// to update isSeen message status
+Future updateIsSeen({required List<String> chatsIds}) async {
+  try {
+    for (var chatid in chatsIds) {
+      await databases.updateDocument(
+          databaseId: databaseId,
+          collectionId: chatCollectionId,
+          documentId: chatid,
+          data: {"is_seen_by_receiver": true});
+      print("update is seen");
+    }
+  } catch (e) {
+    print("error in update isseen :$e");
+  }
+}
+
+// to update the online status
+Future updateOnlineStatus(
+    {required bool status, required String userId}) async {
+  try {
+    await databases.updateDocument(
+        databaseId: databaseId,
+        collectionId: userCollectionId,
+        documentId: userId,
+        data: {"is_online": status});
+    print("Updated user online status $status ");
+  } catch (e) {
+    print("Unable to update online status : $e");
   }
 }

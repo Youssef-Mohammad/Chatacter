@@ -32,6 +32,19 @@ class AppStrings {
   static const other = "Other";
   static const gender = "Gender";
   static const nearby = "Nearby";
+  static const logOut = "Logout";
+  static const about = "About";
+  static const offline = "offline";
+  static const delete = "Delete";
+  static const cancel = "Cancel";
+  static const edit = "Edit";
+  static const editThisMessage = "Edit this message";
+  static const noChats = "No Chats!";
+  static const cantBeDeleted = "Can't be delete";
+  static const chooseWhatToDoWithImage =
+      "Choose what you want to do with this image";
+  static const chooseWhatToDoWithMessage =
+      "Choose what you want to do with this Message";
   //-------------------------------------------
   static const welcomeToChatApp = 'Welcome to ChatApp';
   static const enterPhoneNumberToContinue =
@@ -55,6 +68,8 @@ class AppStrings {
   static const nine = '9';
   static const fourPastHalf = '04:30';
   static const chats = 'Chats';
-  static const friends = 'Friends';
+  static const addFriends = 'Add Friends';
+  static const searchForFriends = 'Search for friends';
+  static const noResultsFound = 'No results found';
   static const enterPhoneNumber = 'Enter phone number';
 }

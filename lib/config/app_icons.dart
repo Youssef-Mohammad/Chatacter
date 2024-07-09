@@ -9,6 +9,7 @@ class AppIcons {
   static const facebookIcon = "${_png}facebook.png";
 
   static const homeIcon = "${_svg}home.svg";
+  static const addFriendIcon = "${_svg}addFriends.svg";
   static const favoriteIcon = "${_svg}heart.svg";
   static const addIcon = "${_svg}add.svg";
   static const chatIcon = "${_svg}message.svg";

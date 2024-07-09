@@ -25,7 +25,7 @@ class UserDataProvider extends ChangeNotifier {
   String get getUserDeviceToken => _userDeviceToken;
 
   // To load the data from local device
-  void LoadDataFromLocal() {
+  Future<void> loadDataFromLocal() async {
     _userId = LocalSavedData.getUserId();
     _userName = LocalSavedData.getUserName();
     _userLastName = LocalSavedData.getUserLastName();
@@ -41,13 +41,14 @@ class UserDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // To load the data from our database
-  void loadUserData(String userId) async {
+  // To load the data from our AppWrite database
+  Future<void> loadUserData(String userId) async {
     UserData? user = await getUserDetails(userId: userId);
     if (user != null) {
       _userName = user.name ?? '';
       _userLastName = user.lastName ?? '';
       _userBirthday = user.birthday ?? '';
+      _userLocation = user.location ?? '';
       _userGender = user.gender ?? '';
       _userProfilePicture = user.profilePicture ?? '';
       notifyListeners();
@@ -104,6 +105,20 @@ class UserDataProvider extends ChangeNotifier {
 
   void setUserDeviceToken(String token) {
     _userDeviceToken = token;
+    notifyListeners();
+  }
+
+  void clearAllProviders() {
+    _userId = '';
+    _userName = '';
+    _userLastName = '';
+    _userBirthday = '';
+    _userGender = '';
+    _userProfilePicture = '';
+    _userLocation = '';
+    _userDeviceToken = '';
+    _userPhone = '';
+
     notifyListeners();
   }
 }

@@ -13,6 +13,7 @@ import 'package:chatacter/config/app_strings.dart';
 import 'package:chatacter/styles/app_colors.dart';
 import 'package:chatacter/styles/app_text.dart';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart' as permission;
 
 enum Gender { none, male, female, other }
 
@@ -28,6 +29,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _locationController = TextEditingController();
   TextEditingController _birthdayController = TextEditingController();
+  TextEditingController _phoneNumberController = TextEditingController();
 
   var gender = Gender.none;
 
@@ -41,41 +43,62 @@ class _EditProfilePageState extends State<EditProfilePage> {
   final _locationKey = GlobalKey<FormState>();
   final _birthdayKey = GlobalKey<FormState>();
 
+  bool _isDataLoaded = false;
+
   @override
   void initState() {
     // Try to load data from local database
-    Future.delayed(Duration.zero, () {
-      imageId = Provider.of<UserDataProvider>(context, listen: false)
-          .getUserProfilePicture;
-      userId = Provider.of<UserDataProvider>(context, listen: false).getUserId;
-    });
-
-    //Handle gender loading
-    switch (
-        Provider.of<UserDataProvider>(context, listen: false).getUserGender) {
-      case 'male':
-        gender = Gender.male;
-        break;
-      case 'female':
-        gender = Gender.female;
-        break;
-      case 'other':
-        gender = Gender.other;
-        break;
-      default:
-        gender = Gender.none; // or any default you see fit
-    }
-
     super.initState();
+    Future.delayed(Duration.zero, () {
+      final userDataProvider =
+          Provider.of<UserDataProvider>(context, listen: false);
+      userId = userDataProvider.getUserId;
+      userDataProvider.loadUserData(userId!);
+      imageId = userDataProvider.getUserProfilePicture;
+
+      // Listen for changes in the user data
+      userDataProvider.addListener(() {
+        if (!_isDataLoaded) {
+          setState(() {
+            _isDataLoaded = true;
+            switch (userDataProvider.getUserGender.toLowerCase()) {
+              case 'male':
+                gender = Gender.male;
+                break;
+              case 'female':
+                gender = Gender.female;
+                break;
+              case 'other':
+                gender = Gender.other;
+                break;
+              default:
+                gender = Gender.none;
+            }
+          });
+        }
+      });
+    });
   }
 
-  //To open the file picker
+  // To open the file picker
   void _openFilePicker() async {
-    FilePickerResult? result =
-        await FilePicker.platform.pickFiles(type: FileType.image);
-    setState(() {
-      _filePickerResult = result;
-    });
+    var storageStatus = await permission.Permission.storage.status;
+    if (!storageStatus.isGranted) {
+      await permission.Permission.storage.request();
+    }
+
+    storageStatus = await permission
+        .Permission.storage.status; // Re-check the permission status
+    if (storageStatus.isGranted) {
+      FilePickerResult? result =
+          await FilePicker.platform.pickFiles(type: FileType.image);
+      setState(() {
+        _filePickerResult = result;
+      });
+    } else {
+      // Handle the case where permission is denied
+      print('Storage permission is denied.');
+    }
   }
 
   // Upload user profile image and save it to database
@@ -116,11 +139,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     final Map<String, dynamic> dataPassed =
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+
     return Consumer<UserDataProvider>(builder: (context, value, child) {
-      _nameController.text = value.getUserName;
-      _lastNameController.text = value.getUserLastName;
-      _locationController.text = value.getUserLocation;
-      _birthdayController.text = value.getUserBirthday;
+      // Set the text controllers' values only if they are empty
+      if (_nameController.text.isEmpty) {
+        _nameController.text = value.getUserName;
+      }
+      if (_lastNameController.text.isEmpty) {
+        _lastNameController.text = value.getUserLastName;
+      }
+      if (_locationController.text.isEmpty) {
+        _locationController.text = value.getUserLocation;
+      }
+      if (_birthdayController.text.isEmpty) {
+        _birthdayController.text = value.getUserBirthday;
+      }
+      if (_phoneNumberController.text.isEmpty) {
+        _phoneNumberController.text = value.getUserPhone;
+      }
 
       return Scaffold(
         appBar: ToolBar(
@@ -170,8 +206,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     )
                   ],
                 ),
-
-                // Image.asset('/assets/images/user.png'.substring(1)),
                 SizedBox(
                   height: 40,
                 ),
@@ -218,6 +252,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 AppTextfield(
                   hint: AppStrings.phoneNumber,
                   enabled: false,
+                  controller: _phoneNumberController,
                 ),
                 SizedBox(
                   height: 16,
@@ -258,13 +293,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   padding: EdgeInsets.only(left: 12, right: 12, top: 6),
                   decoration: BoxDecoration(
                       color: AppColors.fieldColor,
-                      borderRadius: BorderRadius.all(Radius.circular(12))),
+                      borderRadius: BorderRadius.all(Radius.circular(16))),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         AppStrings.gender,
-                        style: AppText.body1.copyWith(fontSize: 12),
+                        style: AppText.body1,
                       ),
                       Row(
                         children: [

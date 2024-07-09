@@ -1,4 +1,5 @@
 import 'package:chatacter/pages/chats_page.dart';
+import 'package:chatacter/pages/test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:chatacter/components/bottom_navigation_item.dart';
@@ -36,12 +37,7 @@ class _MainPageState extends State<MainPage> {
 
   final pages = [
     HomePage(),
-    Center(
-      child: Text(
-        "Favorite",
-        style: TextStyle(fontSize: 32),
-      ),
-    ),
+    RequestPage(),
     Center(
       child: Text(
         "Add",

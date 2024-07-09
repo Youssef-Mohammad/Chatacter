@@ -1,18 +1,23 @@
+import 'package:intl/intl.dart';
+
 String formatDate(DateTime date) {
-  //if today
-  if (date.day == DateTime.now().day &&
-      date.month == DateTime.now().month &&
-      date.year == DateTime.now().year) {
-    //Todat 12:45
-    return 'Today ${date.hour > 9 ? date.hour : '0${date.hour}'}:${date.minute > 9 ? date.minute : '0${date.minute}'}';
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+  final yesterday = today.subtract(Duration(days: 1));
+
+  final dateFormatter = DateFormat('MM/dd/yyyy hh:mm a');
+
+  if (date.year == now.year && date.month == now.month && date.day == now.day) {
+    // Today 12:45 PM
+    return 'Today ${DateFormat('hh:mm a').format(date)}';
   }
 
-  //if yesterday
-  if (date.day == DateTime.now().day - 1 &&
-      date.month == DateTime.now().month &&
-      date.year == DateTime.now().year) {
-    //yesterdat 12:45
-    return 'Yesterday ${date.hour > 9 ? date.hour : '0${date.hour}'}:${date.minute > 9 ? date.minute : '0${date.minute}'}';
+  if (date.year == yesterday.year &&
+      date.month == yesterday.month &&
+      date.day == yesterday.day) {
+    // Yesterday 12:45 PM
+    return 'Yesterday ${DateFormat('hh:mm a').format(date)}';
   }
-  return '${date.day > 9 ? date.day : '0${date.day}'}/${date.month > 9 ? date.month : '0${date.month}'}/${date.year} ${date.hour > 9 ? date.hour : '0${date.hour}'}:${date.minute > 9 ? date.minute : '0${date.minute}'}';
+
+  return dateFormatter.format(date);
 }

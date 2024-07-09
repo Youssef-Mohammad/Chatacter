@@ -26,48 +26,24 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: ToolBar(
         title: "Profile",
         actions: [
-          PopupMenuButton(
-            onSelected: (value) {
-              switch (value) {
-                case ProfileMenu.edit:
-                  Navigator.of(context).pushNamed(AppRoutes.editProfile,
-                      arguments: {'title': 'edit'});
-                  break;
-
-                case ProfileMenu.logout:
-                  print("Log out Pressed");
-                  break;
-                default:
-              }
-            },
-            icon: Icon(Icons.more_vert_rounded),
-            itemBuilder: (context) {
-              return [
-                PopupMenuItem(
-                  child: Text("Edit"),
-                  value: ProfileMenu.edit,
-                ),
-                PopupMenuItem(
-                  child: Text("Log out"),
-                  value: ProfileMenu.logout,
-                ),
-              ];
-            },
-          )
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed(AppRoutes.settings);
+              },
+              icon: Icon(Icons.settings))
         ],
       ),
       body: Column(
         children: [
-          CircleAvatar(
-            radius: 90,
-            backgroundImage: Provider.of<UserDataProvider>(context,
-                            listen: false)
-                        .getUserProfilePicture !=
-                    ''
-                ? CachedNetworkImageProvider(
-                    'https://cloud.appwrite.io/v1/storage/buckets/6683247c00056fdd9ceb/files/${Provider.of<UserDataProvider>(context, listen: false).getUserProfilePicture}/view?project=667d37b30023f69f7f74&mode=admin')
-                : Image(image: AssetImage(AppIcons.userIcon)).image,
-          ),
+          Consumer<UserDataProvider>(builder: (context, value, child) {
+            return CircleAvatar(
+              radius: 90,
+              backgroundImage: value.getUserProfilePicture != ''
+                  ? CachedNetworkImageProvider(
+                      'https://cloud.appwrite.io/v1/storage/buckets/6683247c00056fdd9ceb/files/${Provider.of<UserDataProvider>(context, listen: false).getUserProfilePicture}/view?project=667d37b30023f69f7f74&mode=admin')
+                  : Image(image: AssetImage(AppIcons.userIcon)).image,
+            );
+          }),
           SizedBox(
             height: 24,
           ),

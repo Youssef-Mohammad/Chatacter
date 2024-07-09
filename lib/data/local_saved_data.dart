@@ -80,8 +80,8 @@ class LocalSavedData {
     return preferences!.getString('profilePicture') ?? '';
   }
 
-  static clearAllData() {
-    preferences!.clear();
-    print('Cleared all data from local');
+  static clearAllData() async {
+    final bool data = await preferences!.clear();
+    print('Cleared all data from local: $data');
   }
 }

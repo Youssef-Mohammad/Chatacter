@@ -18,15 +18,12 @@ class LoginPage extends StatelessWidget {
             child: Column(
               children: [
                 Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 64),
-                  child: Text(
-                    AppStrings.helloWelcome,
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Text(
+                  AppStrings.helloWelcome,
+                  style: TextStyle(
+                    color: AppColors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(
@@ -179,22 +176,16 @@ class LoginPage extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () {
-                                print("Sign Up Clicked");
+                                Navigator.of(context).pushNamed(AppRoutes.otp);
                               },
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.amber,
                               ),
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.of(context)
-                                      .pushNamed(AppRoutes.otp);
-                                },
-                                child: Text(
-                                  AppStrings.signup,
-                                  style: TextStyle(
-                                      decoration: TextDecoration.underline,
-                                      decorationColor: Colors.amber),
-                                ),
+                              child: Text(
+                                AppStrings.signup,
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.amber),
                               ),
                             )
                           ],

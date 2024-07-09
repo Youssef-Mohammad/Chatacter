@@ -40,9 +40,11 @@ class _MessageItemState extends State<MessageItem> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: CachedNetworkImage(
-                          imageUrl: "https://picsum.photos/200/200",
+                          imageUrl:
+                              "https://cloud.appwrite.io/v1/storage/buckets/662faabe001a20bb87c6/files/${widget.message.message}/view?project=662e8e5c002f2d77a17c&mode=admin",
                           height: 200,
                           width: 200,
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
@@ -68,7 +70,7 @@ class _MessageItemState extends State<MessageItem> {
                                 : Icon(
                                     Icons.check_circle_outline,
                                     size: 16,
-                                    color: AppColors.notSeen,
+                                    color: AppColors.primary,
                                   )
                             : SizedBox()
                       ],
@@ -121,7 +123,7 @@ class _MessageItemState extends State<MessageItem> {
                               style: TextStyle(
                                   color: widget.message.sender ==
                                           widget.currentUser
-                                      ? AppColors.white
+                                      ? AppColors.black
                                       : AppColors.black),
                             ),
                           )

@@ -2,12 +2,14 @@ import 'package:chatacter/main.dart';
 import 'package:chatacter/pages/chat_page.dart';
 import 'package:chatacter/pages/chats_page.dart';
 import 'package:chatacter/pages/edit_profile_page.dart';
-import 'package:chatacter/pages/friends_page.dart';
+import 'package:chatacter/pages/add_friends_page.dart';
 import 'package:chatacter/pages/home_page.dart';
 import 'package:chatacter/pages/login_page.dart';
 import 'package:chatacter/pages/main_page.dart';
 import 'package:chatacter/pages/nearby_page.dart';
 import 'package:chatacter/pages/otp_page.dart';
+import 'package:chatacter/pages/settings_page.dart';
+import 'package:chatacter/pages/test.dart';
 import 'package:chatacter/pages/video_page.dart';
 
 class AppRoutes {
@@ -22,6 +24,8 @@ class AppRoutes {
   static const chats = "/chats";
   static const friends = "/friends";
   static const video = "/video";
+  static const settings = "/settings";
+  static const test = "/test";
 
   static final pages = {
     checkUserSession: (context) => CheckUserSessions(),
@@ -33,7 +37,9 @@ class AppRoutes {
     otp: (context) => OtpPage(),
     chat: (context) => ChatPage(),
     chats: (context) => ChatsPage(),
-    friends: (context) => FriendsPage(),
+    friends: (context) => AddFriendsPage(),
     video: (context) => VideoPage(),
+    settings: (context) => SettingsPage(),
+    test: (context) => RequestPage(),
   };
 }

@@ -103,14 +103,14 @@ class _VideoPageState extends State<VideoPage> {
     super.dispose();
   }
 
-  switchCamera() async {
+  switchCamera() {
     setState(() {
       cameraNumber = (cameraNumber + 1) % cameras!.length;
+      if (cameraController != null) {
+        cameraController!.dispose();
+      }
+      loadCamera();
     });
-    if (cameraController != null) {
-      await cameraController!.dispose();
-    }
-    loadCamera();
   }
 
   @override

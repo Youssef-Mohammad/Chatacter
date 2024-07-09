@@ -77,6 +77,8 @@ class _OtpPageState extends State<OtpPage> {
                     Form(
                       key: _formKey,
                       child: TextFormField(
+                        onFieldSubmitted: (value) =>
+                            handleOtpSubmit(context, value),
                         controller: _phoneNumberController,
                         keyboardType: TextInputType.phone,
                         validator: (value) {
@@ -114,56 +116,62 @@ class _OtpPageState extends State<OtpPage> {
                                 .then((value) {
                               if (value != 'Login Error') {
                                 showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                          title:
-                                              Text(AppStrings.otpVerification),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                  AppStrings.enterTheSixDigits),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Form(
-                                                key: _formKey1,
-                                                child: TextFormField(
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  controller: _otpController,
-                                                  validator: (value) {
-                                                    if (value!.length != 6) {
-                                                      return AppStrings
-                                                          .invalidOtp;
-                                                    }
-                                                    return null;
-                                                  },
-                                                  decoration: InputDecoration(
-                                                      labelText: AppStrings
-                                                          .enterTheOtpReceived,
-                                                      border:
-                                                          OutlineInputBorder(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          12))),
-                                                ),
-                                              )
-                                            ],
+                                  context: context,
+                                  barrierDismissible:
+                                      false, // Prevents closing the dialog by tapping outside of it
+                                  builder: (context) => AlertDialog(
+                                    title: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(AppStrings.otpVerification),
+                                        IconButton(
+                                          icon: Icon(Icons.close),
+                                          onPressed: () => Navigator.of(context)
+                                              .pop(), // Closes the dialog
+                                        ),
+                                      ],
+                                    ),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(AppStrings.enterTheSixDigits),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Form(
+                                          key: _formKey1,
+                                          child: TextFormField(
+                                            keyboardType: TextInputType.number,
+                                            controller: _otpController,
+                                            validator: (value) {
+                                              if (value!.length != 6) {
+                                                return AppStrings.invalidOtp;
+                                              }
+                                              return null;
+                                            },
+                                            decoration: InputDecoration(
+                                                labelText: AppStrings
+                                                    .enterTheOtpReceived,
+                                                border: OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            12))),
                                           ),
-                                          actions: [
-                                            TextButton(
-                                                onPressed: () {
-                                                  handleOtpSubmit(
-                                                      context, value);
-                                                },
-                                                child: const Text(
-                                                    AppStrings.submit))
-                                          ],
-                                        ));
+                                        )
+                                      ],
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () {
+                                            handleOtpSubmit(context, value);
+                                          },
+                                          child: const Text(AppStrings.submit))
+                                    ],
+                                  ),
+                                );
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

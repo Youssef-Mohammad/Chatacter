@@ -17,7 +17,9 @@ class LoginPage extends StatelessWidget {
             padding: const EdgeInsets.all(24),
             child: Column(
               children: [
-                Spacer(),
+                Spacer(
+                  flex: 2,
+                ),
                 Text(
                   AppStrings.helloWelcome,
                   style: TextStyle(
@@ -116,6 +118,8 @@ class LoginPage extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.white),
                             onPressed: () {
+                              // Navigator.of(context)
+                              // .pushReplacementNamed(AppRoutes.voiceCall);
                               print("Google is clicked");
                             },
                             child: Row(
@@ -146,6 +150,8 @@ class LoginPage extends StatelessWidget {
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.white),
                             onPressed: () {
+                              Navigator.of(context)
+                                  .pushReplacementNamed(AppRoutes.video);
                               print("Facebook is clicked");
                             },
                             child: Row(

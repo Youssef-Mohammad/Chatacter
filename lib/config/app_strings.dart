@@ -1,5 +1,5 @@
 class AppStrings {
-  static const appName = "5 Minuits Flutter";
+  static const appName = "Chatacter";
   static const helloWelcome = "Hello, Welcome Back!";
   static const loginToContinue = "Login to Continue";
   static const username = "Username";
@@ -46,7 +46,7 @@ class AppStrings {
   static const chooseWhatToDoWithMessage =
       "Choose what you want to do with this Message";
   //-------------------------------------------
-  static const welcomeToChatApp = 'Welcome to ChatApp';
+  static const welcomeToChatacter = 'Welcome to Chatacter';
   static const enterPhoneNumberToContinue =
       'Enter your phone number to continue';
   static const enterYourPhoneNumber = 'Enter your phone number';

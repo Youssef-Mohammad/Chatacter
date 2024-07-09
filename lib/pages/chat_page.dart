@@ -224,12 +224,19 @@ class _ChatPageState extends State<ChatPage> {
               IconButton(
                 icon: const Icon(Icons.videocam_rounded),
                 onPressed: () {
-                  Navigator.of(context).pushNamed(AppRoutes.video);
+                  Navigator.of(context).pushNamed(
+                    AppRoutes.voiceCall,
+                    arguments: receiver,
+                  );
                 },
               ),
               IconButton(
                 icon: const Icon(Icons.call),
                 onPressed: () {
+                  Navigator.of(context).pushNamed(
+                    AppRoutes.voiceCall,
+                    arguments: receiver,
+                  );
                   // Add your voice call logic here
                 },
               ),

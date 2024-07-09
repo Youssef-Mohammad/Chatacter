@@ -9,8 +9,8 @@ import 'package:chatacter/pages/main_page.dart';
 import 'package:chatacter/pages/nearby_page.dart';
 import 'package:chatacter/pages/otp_page.dart';
 import 'package:chatacter/pages/settings_page.dart';
-import 'package:chatacter/pages/test.dart';
 import 'package:chatacter/pages/video_page.dart';
+import 'package:chatacter/pages/voice_call_page.dart';
 
 class AppRoutes {
   static const checkUserSession = "/";
@@ -25,7 +25,7 @@ class AppRoutes {
   static const friends = "/friends";
   static const video = "/video";
   static const settings = "/settings";
-  static const test = "/test";
+  static const voiceCall = "/voice_call";
 
   static final pages = {
     checkUserSession: (context) => CheckUserSessions(),
@@ -40,6 +40,6 @@ class AppRoutes {
     friends: (context) => AddFriendsPage(),
     video: (context) => VideoPage(),
     settings: (context) => SettingsPage(),
-    test: (context) => RequestPage(),
+    voiceCall: (context) => VoiceCallPage(),
   };
 }

@@ -51,7 +51,6 @@ class _OtpPageState extends State<OtpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
       body: SingleChildScrollView(
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
@@ -68,7 +67,7 @@ class _OtpPageState extends State<OtpPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppStrings.welcomeToChatApp,
+                    Text(AppStrings.welcomeToChatacter,
                         style: AppText.welcomeFont),
                     Text(AppStrings.enterPhoneNumberToContinue),
                     SizedBox(
@@ -183,7 +182,7 @@ class _OtpPageState extends State<OtpPage> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.white,
+                          foregroundColor: AppColors.black,
                         ),
                       ),
                     ),

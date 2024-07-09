@@ -2,7 +2,7 @@ class AppIcons {
   static const _png = "assets/images/";
   static const _svg = "assets/svg/";
 
-  static const appPoster = "${_png}chat.png";
+  static const appPoster = "${_png}banner1.png";
   static const userIcon = "${_png}user.png";
 
   static const googleIcon = "${_png}google.png";
